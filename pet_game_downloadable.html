@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>別忘記餵巴拉麵 - 單機版</title>
+  <style>
+    body { font-family: sans-serif; text-align: center; background: #fefcea; }
+    h1 { margin-top: 30px; }
+    .pet-container { margin-top: 30px; }
+    .pet-img { width: 200px; height: 200px; object-fit: contain; }
+    button { margin: 10px; padding: 10px 20px; font-size: 16px; }
+    .status { margin-top: 10px; font-weight: bold; font-size: 18px; }
+    .dead { filter: grayscale(100%); }
+  </style>
+</head>
+<body>
+  <h1>別忘記餵巴拉麵 🐾</h1>
+  <div class="pet-container">
+    <img id="petImage" class="pet-img" src="" alt="你的寵物">
+    <div class="status" id="status">狀態：尚未餵食</div>
+    <button onclick="feed()">🍖 餵食</button>
+    <button onclick="revive()">❤️ 復活</button>
+  </div>
+
+  <script>
+    const pets = [
+      'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUA...==' // Base64 範例圖
+    ];
+    const petImage = document.getElementById("petImage");
+    const status = document.getElementById("status");
+    let alive = true;
+    let timer;
+
+    function startTimer() {
+      clearInterval(timer);
+      timer = setInterval(() => {
+        if (alive) {
+          alive = false;
+          petImage.classList.add("dead");
+          status.textContent = "狀態：死亡 🪦";
+        }
+      }, 3000);
+    }
+
+    function feed() {
+      if (!alive) return;
+      status.textContent = "狀態：存活中 🐶";
+      startTimer();
+    }
+
+    function revive() {
+      alive = true;
+      petImage.classList.remove("dead");
+      status.textContent = "狀態：復活成功 🐶";
+      startTimer();
+    }
+
+    function init() {
+      petImage.src = pets[0];
+      startTimer();
+    }
+
+    window.onload = init;
+  </script>
+</body>
+</html>
