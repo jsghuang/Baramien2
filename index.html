@@ -2,62 +2,209 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8">
-  <title>別忘記餵巴拉麵 - 單機版</title>
+  <title>別忘記餵巴拉麵 - 進階版</title>
   <style>
     body { font-family: sans-serif; text-align: center; background: #fefcea; }
     h1 { margin-top: 30px; }
     .pet-container { margin-top: 30px; }
-    .pet-img { width: 200px; height: 200px; object-fit: contain; }
-    button { margin: 10px; padding: 10px 20px; font-size: 16px; }
-    .status { margin-top: 10px; font-weight: bold; font-size: 18px; }
+    .pet-img {
+      width: 200px;
+      height: 200px;
+      object-fit: contain;
+      transition: 0.3s;
+    }
+    button {
+      margin: 6px;
+      padding: 10px 20px;
+      font-size: 16px;
+    }
+    .status {
+      margin-top: 10px;
+      font-weight: bold;
+      font-size: 18px;
+    }
     .dead { filter: grayscale(100%); }
+    .dirty { filter: sepia(90%); }
+    .stinky { filter: hue-rotate(90deg); }
+    .angry { filter: contrast(150%) brightness(85%); }
+    .bored { filter: blur(1px); }
+    .sleepy { filter: brightness(80%) saturate(70%); }
   </style>
 </head>
 <body>
   <h1>別忘記餵巴拉麵 🐾</h1>
   <div class="pet-container">
     <img id="petImage" class="pet-img" src="" alt="你的寵物">
-    <div class="status" id="status">狀態：尚未餵食</div>
-    <button onclick="feed()">🍖 餵食</button>
-    <button onclick="revive()">❤️ 復活</button>
+    <div class="status" id="status">狀態：尚未開始</div>
+    <div>
+      <button onclick="feed()">🍖 餵食</button>
+      <button onclick="wash()">🛁 洗澡</button>
+      <button onclick="toilet()">🚽 上廁所</button>
+      <button onclick="pet()">🤲 摸摸</button>
+      <button onclick="play()">🧸 玩耍</button>
+      <button onclick="sleep()">😴 睡覺</button>
+      <button onclick="revive()">❤️ 復活</button>
+    </div>
   </div>
 
   <script>
     const pets = [
-      'https://raw.githubusercontent.com/jsghuang/Baramien2/main/2.png' // Base64 範例圖
+      'https://raw.githubusercontent.com/jsghuang/Baramien2/main/2.png'
     ];
     const petImage = document.getElementById("petImage");
     const status = document.getElementById("status");
-    let alive = true;
-    let timer;
 
-    function startTimer() {
-      clearInterval(timer);
-      timer = setInterval(() => {
+    let alive = true;
+    let dirty = false, stinky = false, angry = false, bored = false, sleepy = false;
+
+    let feedTimer, bathTimer, toiletTimer, angryTimer, boredTimer, sleepyTimer;
+
+    function updateStatus() {
+      if (!alive) {
+        status.textContent = "狀態：死亡 🪦";
+        return;
+      }
+
+      let conditions = [];
+      if (dirty) conditions.push("髒髒的 🛁");
+      if (stinky) conditions.push("臭臭的 💩");
+      if (angry) conditions.push("生氣的 😠");
+      if (bored) conditions.push("無聊的 🧸");
+      if (sleepy) conditions.push("睏睏的 😴");
+
+      if (conditions.length === 0) {
+        status.textContent = "狀態：快樂中 🐶";
+      } else {
+        status.textContent = "狀態：" + conditions.join("，");
+      }
+    }
+
+    function applyFilters() {
+      petImage.className = "pet-img";
+      if (!alive) {
+        petImage.classList.add("dead");
+        return;
+      }
+      if (dirty) petImage.classList.add("dirty");
+      if (stinky) petImage.classList.add("stinky");
+      if (angry) petImage.classList.add("angry");
+      if (bored) petImage.classList.add("bored");
+      if (sleepy) petImage.classList.add("sleepy");
+    }
+
+    function startTimers() {
+      clearInterval(feedTimer);
+      clearInterval(bathTimer);
+      clearInterval(toiletTimer);
+      clearInterval(angryTimer);
+      clearInterval(boredTimer);
+      clearInterval(sleepyTimer);
+
+      feedTimer = setInterval(() => {
         if (alive) {
           alive = false;
-          petImage.classList.add("dead");
-          status.textContent = "狀態：死亡 🪦";
+          updateStatus();
+          applyFilters();
         }
-      }, 3000);
+      }, 10000); // 餓死
+
+      bathTimer = setInterval(() => {
+        if (alive) {
+          dirty = true;
+          updateStatus();
+          applyFilters();
+        }
+      }, 5000);
+
+      toiletTimer = setInterval(() => {
+        if (alive) {
+          stinky = true;
+          updateStatus();
+          applyFilters();
+        }
+      }, 4000);
+
+      angryTimer = setInterval(() => {
+        if (alive) {
+          angry = true;
+          updateStatus();
+          applyFilters();
+        }
+      }, 12000);
+
+      boredTimer = setInterval(() => {
+        if (alive) {
+          bored = true;
+          updateStatus();
+          applyFilters();
+        }
+      }, 15000);
+
+      sleepyTimer = setInterval(() => {
+        if (alive) {
+          sleepy = true;
+          updateStatus();
+          applyFilters();
+        }
+      }, 20000);
     }
 
     function feed() {
       if (!alive) return;
-      status.textContent = "狀態：存活中 🐶";
-      startTimer();
+      startTimers();
+      updateStatus();
+    }
+
+    function wash() {
+      if (!alive) return;
+      dirty = false;
+      updateStatus();
+      applyFilters();
+    }
+
+    function toilet() {
+      if (!alive) return;
+      stinky = false;
+      updateStatus();
+      applyFilters();
+    }
+
+    function pet() {
+      if (!alive) return;
+      angry = false;
+      updateStatus();
+      applyFilters();
+    }
+
+    function play() {
+      if (!alive) return;
+      bored = false;
+      updateStatus();
+      applyFilters();
+    }
+
+    function sleep() {
+      if (!alive) return;
+      sleepy = false;
+      updateStatus();
+      applyFilters();
     }
 
     function revive() {
       alive = true;
-      petImage.classList.remove("dead");
-      status.textContent = "狀態：復活成功 🐶";
-      startTimer();
+      dirty = false;
+      stinky = false;
+      angry = false;
+      bored = false;
+      sleepy = false;
+      updateStatus();
+      applyFilters();
+      startTimers();
     }
 
     function init() {
       petImage.src = pets[0];
-      startTimer();
+      revive();
     }
 
     window.onload = init;
