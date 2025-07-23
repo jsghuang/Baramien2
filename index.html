@@ -6,22 +6,20 @@
   <style>
     body {
       font-family: sans-serif;
-      text-align: center;
       background: #fefcea;
-      height: 100vh;
-      overflow: hidden;
       margin: 0;
       padding: 0;
-      position: relative;
     }
     h1 {
+      text-align: center;
       margin-top: 20px;
     }
     #gameArea {
       position: relative;
       width: 100%;
-      height: calc(100vh - 120px);
+      height: 60vh;
       overflow: hidden;
+      border: 2px dashed #ccc;
     }
     .pet-img {
       width: 120px;
@@ -44,12 +42,15 @@
     .sleepy { filter: brightness(80%) saturate(70%); }
 
     .status {
-      margin-top: 8px;
+      text-align: center;
+      margin-top: 10px;
       font-weight: bold;
       font-size: 18px;
     }
+
     .controls {
-      margin-top: 10px;
+      text-align: center;
+      margin: 20px 0;
     }
     .controls button {
       margin: 6px;
@@ -59,11 +60,14 @@
   </style>
 </head>
 <body>
+
   <h1>別忘記餵巴拉麵 🐾</h1>
   <div id="gameArea">
     <img id="petImage" class="pet-img" src="https://raw.githubusercontent.com/jsghuang/Baramien2/main/2.png" alt="你的寵物">
   </div>
+
   <div class="status" id="status">狀態：尚未開始</div>
+
   <div class="controls">
     <button onclick="feed()">🍖 餵食</button>
     <button onclick="wash()">🛁 洗澡</button>
@@ -90,12 +94,14 @@
         status.textContent = "狀態：死亡 🪦";
         return;
       }
+
       const list = [];
       if (dirty) list.push("髒髒的 🛁");
       if (stinky) list.push("臭臭的 💩");
       if (angry) list.push("生氣的 😠");
       if (bored) list.push("無聊的 🧸");
       if (sleepy) list.push("睏睏的 😴");
+
       status.textContent = list.length ? "狀態：" + list.join("，") : "狀態：快樂中 🐶";
     }
 
