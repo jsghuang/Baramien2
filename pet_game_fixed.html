@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>別忘記餵巴拉麵 - 單機版</title>
+  <style>
+    body { font-family: sans-serif; text-align: center; background: #fefcea; }
+    h1 { margin-top: 30px; }
+    .pet-container { margin-top: 30px; }
+    .pet-img { 
+      width: 200px; 
+      height: 200px; 
+      object-fit: contain; 
+      border: 2px solid #ccc;
+      border-radius: 10px;
+      background: #f0f0f0;
+    }
+    button { margin: 10px; padding: 10px 20px; font-size: 16px; }
+    .status { margin-top: 10px; font-weight: bold; font-size: 18px; }
+    .dead { filter: grayscale(100%); }
+    .pet-placeholder {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 48px;
+      background: linear-gradient(45deg, #ff9a9e, #fecfef);
+    }
+  </style>
+</head>
+<body>
+  <h1>別忘記餵巴拉麵 🐾</h1>
+  <div class="pet-container">
+    <div id="petImage" class="pet-img pet-placeholder">🐕</div>
+    <div class="status" id="status">狀態：尚未餵食</div>
+    <button onclick="feed()">🍖 餵食</button>
+    <button onclick="revive()">❤️ 復活</button>
+    <button onclick="changePet()">🔄 換寵物</button>
+  </div>
+  
+  <div style="margin-top: 20px; padding: 10px; background: #fff3cd; border-radius: 5px; max-width: 500px; margin-left: auto; margin-right: auto;">
+    <strong>注意：</strong>原始的 imgur 圖片因為跨域限制無法顯示，這裡使用 emoji 作為替代。<br>
+    如果要使用真實圖片，建議：
+    <ul style="text-align: left; font-size: 14px;">
+      <li>將圖片下載後放在同一個資料夾</li>
+      <li>使用支援跨域的圖片託管服務</li>
+      <li>或使用 base64 編碼的圖片</li>
+    </ul>
+  </div>
+
+  <script>
+    const pets = [
+      'https://raw.githubusercontent.com/jsghuang/Baramien/main/1.png',
+      '🐱', // 貓咪（備用）
+      '🐹', // 倉鼠（備用）
+      '🐰', // 兔子（備用）
+      '🐸', // 青蛙（備用）
+      '🐧', // 企鵝（備用）
+      '🦆'  // 鴨子（備用）
+    ];
+    
+    const petNames = [
+      '我要脫魯',
+      '犬犬', 
+      'ㄇㄇ',
+      '度勻',
+      '神秘生物',
+      '咳（剛存在）',
+      '哭了'
+    ];
+    
+    const petImg = document.getElementById('petImage');
+    const statusText = document.getElementById('status');
+    
+    // 因為 localStorage 在 Claude 環境中不可用，改用記憶體存儲
+    let state = {
+      petIndex: Math.floor(Math.random() * pets.length),
+      lastFed: Date.now(),
+      isDead: false
+    };
+    
+    function displayPet() {
+      const currentPet = pets[state.petIndex];
+      if (currentPet.startsWith('http')) {
+        // 如果是圖片連結，建立 img 元素
+        petImg.innerHTML = `<img src="${currentPet}" style="width: 100%; height: 100%; object-fit: contain;" alt="寵物" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                          <div style="display: none; width: 100%; height: 100%; align-items: center; justify-content: center; font-size: 48px; background: linear-gradient(45deg, #ff9a9e, #fecfef);">❌</div>`;
+      } else {
+        // 如果是 emoji，直接顯示文字
+        petImg.innerHTML = currentPet;
+      }
+    }
+    
+    function updateStatus() {
+      const now = Date.now();
+      const seconds = (now - state.lastFed) / 1000;
+      
+      if (seconds >= 3) {
+        state.isDead = true;
+      }
+      
+      petImg.className = 'pet-img pet-placeholder' + (state.isDead ? ' dead' : '');
+      statusText.textContent = state.isDead ? '狀態：已死亡 ☠️' : `狀態：存活中 🐶 (${petNames[state.petIndex]})`;
+    }
+    
+    function feed() {
+      state.lastFed = Date.now();
+      state.isDead = false;
+      updateStatus();
+    }
+    
+    function revive() {
+      state.lastFed = Date.now();
+      state.isDead = false;
+      updateStatus();
+    }
+    
+    function changePet() {
+      state.petIndex = (state.petIndex + 1) % pets.length;
+      displayPet();
+      updateStatus();
+    }
+    
+    // 初始化
+    displayPet();
+    updateStatus();
+    setInterval(updateStatus, 1000); // 每秒檢查一次
+  </script>
+</body>
+</html>
