@@ -8,37 +8,33 @@
       font-family: sans-serif;
       text-align: center;
       background: #fefcea;
+      height: 100vh;
+      overflow: hidden;
+      margin: 0;
+      padding: 0;
+      position: relative;
     }
     h1 {
-      margin-top: 30px;
+      margin-top: 20px;
     }
-    .pet-container {
-      margin-top: 30px;
+    #gameArea {
       position: relative;
-      display: inline-block;
+      width: 100%;
+      height: calc(100vh - 120px);
+      overflow: hidden;
     }
     .pet-img {
-      width: 200px;
-      height: 200px;
+      width: 120px;
+      height: 120px;
       object-fit: contain;
-      transition: transform 0.3s;
+      position: absolute;
+      transition: all 0.4s ease;
+      z-index: 10;
     }
     .poop {
       position: absolute;
-      font-size: 40px;
-      left: 170px;
-      top: 140px;
-      display: none;
-    }
-    button {
-      margin: 6px;
-      padding: 10px 20px;
-      font-size: 16px;
-    }
-    .status {
-      margin-top: 10px;
-      font-weight: bold;
-      font-size: 18px;
+      font-size: 36px;
+      z-index: 1;
     }
     .dead { filter: grayscale(100%); }
     .dirty { filter: sepia(90%); }
@@ -46,16 +42,29 @@
     .angry { filter: contrast(150%) brightness(85%); }
     .bored { filter: blur(1px); }
     .sleepy { filter: brightness(80%) saturate(70%); }
+
+    .status {
+      margin-top: 8px;
+      font-weight: bold;
+      font-size: 18px;
+    }
+    .controls {
+      margin-top: 10px;
+    }
+    .controls button {
+      margin: 6px;
+      padding: 10px 20px;
+      font-size: 16px;
+    }
   </style>
 </head>
 <body>
   <h1>別忘記餵巴拉麵 🐾</h1>
-  <div class="pet-container" id="petContainer">
+  <div id="gameArea">
     <img id="petImage" class="pet-img" src="https://raw.githubusercontent.com/jsghuang/Baramien2/main/2.png" alt="你的寵物">
-    <div id="poopEmoji" class="poop">💩</div>
   </div>
   <div class="status" id="status">狀態：尚未開始</div>
-  <div>
+  <div class="controls">
     <button onclick="feed()">🍖 餵食</button>
     <button onclick="wash()">🛁 洗澡</button>
     <button onclick="toilet()">🚽 上廁所</button>
@@ -68,31 +77,26 @@
   <script>
     const petImage = document.getElementById("petImage");
     const status = document.getElementById("status");
-    const poopEmoji = document.getElementById("poopEmoji");
-    const petContainer = document.getElementById("petContainer");
+    const gameArea = document.getElementById("gameArea");
 
     let alive = true;
     let dirty = false, stinky = false, angry = false, bored = false, sleepy = false;
 
     let feedTimer, bathTimer, toiletTimer, angryTimer, boredTimer, sleepyTimer;
-    let jumpInterval, jumpUp = true;
+    let moveInterval;
 
     function updateStatus() {
       if (!alive) {
         status.textContent = "狀態：死亡 🪦";
-        poopEmoji.style.display = "none";
         return;
       }
-
-      let conditions = [];
-      if (dirty) conditions.push("髒髒的 🛁");
-      if (stinky) conditions.push("臭臭的 💩");
-      if (angry) conditions.push("生氣的 😠");
-      if (bored) conditions.push("無聊的 🧸");
-      if (sleepy) conditions.push("睏睏的 😴");
-
-      status.textContent = conditions.length ? "狀態：" + conditions.join("，") : "狀態：快樂中 🐶";
-      poopEmoji.style.display = stinky ? "block" : "none";
+      const list = [];
+      if (dirty) list.push("髒髒的 🛁");
+      if (stinky) list.push("臭臭的 💩");
+      if (angry) list.push("生氣的 😠");
+      if (bored) list.push("無聊的 🧸");
+      if (sleepy) list.push("睏睏的 😴");
+      status.textContent = list.length ? "狀態：" + list.join("，") : "狀態：快樂中 🐶";
     }
 
     function applyFilters() {
@@ -106,6 +110,24 @@
       if (angry) petImage.classList.add("angry");
       if (bored) petImage.classList.add("bored");
       if (sleepy) petImage.classList.add("sleepy");
+    }
+
+    function randomMove() {
+      const maxX = gameArea.clientWidth - petImage.clientWidth;
+      const maxY = gameArea.clientHeight - petImage.clientHeight;
+      const x = Math.floor(Math.random() * maxX);
+      const y = Math.floor(Math.random() * maxY);
+      petImage.style.left = `${x}px`;
+      petImage.style.top = `${y}px`;
+    }
+
+    function leavePoop() {
+      const poop = document.createElement("div");
+      poop.textContent = "💩";
+      poop.className = "poop";
+      poop.style.left = petImage.style.left;
+      poop.style.top = petImage.style.top;
+      gameArea.appendChild(poop);
     }
 
     function startTimers() {
@@ -135,6 +157,7 @@
       toiletTimer = setInterval(() => {
         if (alive) {
           stinky = true;
+          leavePoop();
           updateStatus();
           applyFilters();
         }
@@ -165,58 +188,19 @@
       }, 20000);
     }
 
-    function startJumping() {
-      clearInterval(jumpInterval);
-      jumpInterval = setInterval(() => {
-        if (!alive) {
-          petContainer.style.transform = "translateY(0px)";
-          return;
-        }
-        petContainer.style.transform = jumpUp ? "translateY(-10px)" : "translateY(0px)";
-        jumpUp = !jumpUp;
-      }, 300);
+    function startMoving() {
+      clearInterval(moveInterval);
+      moveInterval = setInterval(() => {
+        if (alive) randomMove();
+      }, 500);
     }
 
-    function feed() {
-      if (!alive) return;
-      startTimers();
-      updateStatus();
-    }
-
-    function wash() {
-      if (!alive) return;
-      dirty = false;
-      updateStatus();
-      applyFilters();
-    }
-
-    function toilet() {
-      if (!alive) return;
-      stinky = false;
-      updateStatus();
-      applyFilters();
-    }
-
-    function pet() {
-      if (!alive) return;
-      angry = false;
-      updateStatus();
-      applyFilters();
-    }
-
-    function play() {
-      if (!alive) return;
-      bored = false;
-      updateStatus();
-      applyFilters();
-    }
-
-    function sleep() {
-      if (!alive) return;
-      sleepy = false;
-      updateStatus();
-      applyFilters();
-    }
+    function feed() { if (!alive) return; startTimers(); updateStatus(); }
+    function wash() { if (!alive) return; dirty = false; updateStatus(); applyFilters(); }
+    function toilet() { if (!alive) return; stinky = false; updateStatus(); applyFilters(); }
+    function pet() { if (!alive) return; angry = false; updateStatus(); applyFilters(); }
+    function play() { if (!alive) return; bored = false; updateStatus(); applyFilters(); }
+    function sleep() { if (!alive) return; sleepy = false; updateStatus(); applyFilters(); }
 
     function revive() {
       alive = true;
@@ -228,7 +212,7 @@
       updateStatus();
       applyFilters();
       startTimers();
-      startJumping();
+      startMoving();
     }
 
     window.onload = revive;
