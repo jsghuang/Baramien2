@@ -2,9 +2,9 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8">
-  <title>別忘記餵巴拉麵 - 有💩+跳跳版</title>
+  <title>別忘記餵巴拉麵</title>
   <style>
-    body { font-family: sans-serif; text-align: center; background: #fefcea; overflow-x: hidden; }
+    body { font-family: sans-serif; text-align: center; background: #fefcea; }
     h1 { margin-top: 30px; }
     .pet-container { margin-top: 30px; position: relative; display: inline-block; }
     .pet-img {
@@ -41,11 +41,64 @@
 <body>
   <h1>別忘記餵巴拉麵 🐾</h1>
   <div class="pet-container" id="petContainer">
-    <img id="petImage" class="pet-img" src="" alt="你的寵物">
+    <img id="petImage" class="pet-img" src="https://raw.githubusercontent.com/jsghuang/Baramien2/main/2.png" alt="你的寵物">
     <div id="poopEmoji" class="poop">💩</div>
   </div>
   <div class="status" id="status">狀態：尚未開始</div>
   <div>
     <button onclick="feed()">🍖 餵食</button>
     <button onclick="wash()">🛁 洗澡</button>
-    <button o
+    <button onclick="toilet()">🚽 上廁所</button>
+    <button onclick="pet()">🤲 摸摸</button>
+    <button onclick="play()">🧸 玩耍</button>
+    <button onclick="sleep()">😴 睡覺</button>
+    <button onclick="revive()">❤️ 復活</button>
+  </div>
+
+  <script>
+    const petImage = document.getElementById("petImage");
+    const status = document.getElementById("status");
+    const poopEmoji = document.getElementById("poopEmoji");
+    const petContainer = document.getElementById("petContainer");
+
+    let alive = true;
+    let dirty = false, stinky = false, angry = false, bored = false, sleepy = false;
+
+    let feedTimer, bathTimer, toiletTimer, angryTimer, boredTimer, sleepyTimer;
+    let jumpInterval, jumpUp = true;
+
+    function updateStatus() {
+      if (!alive) {
+        status.textContent = "狀態：死亡 🪦";
+        poopEmoji.style.display = "none";
+        return;
+      }
+
+      let conditions = [];
+      if (dirty) conditions.push("髒髒的 🛁");
+      if (stinky) conditions.push("臭臭的 💩");
+      if (angry) conditions.push("生氣的 😠");
+      if (bored) conditions.push("無聊的 🧸");
+      if (sleepy) conditions.push("睏睏的 😴");
+
+      status.textContent = conditions.length ? "狀態：" + conditions.join("，") : "狀態：快樂中 🐶";
+      poopEmoji.style.display = stinky ? "block" : "none";
+    }
+
+    function applyFilters() {
+      petImage.className = "pet-img";
+      if (!alive) {
+        petImage.classList.add("dead");
+        return;
+      }
+      if (dirty) petImage.classList.add("dirty");
+      if (stinky) petImage.classList.add("stinky");
+      if (angry) petImage.classList.add("angry");
+      if (bored) petImage.classList.add("bored");
+      if (sleepy) petImage.classList.add("sleepy");
+    }
+
+    function startTimers() {
+      clearInterval(feedTimer);
+      clearInterval(bathTimer);
+      clearInterv
