@@ -115,6 +115,7 @@
     let feedTimer, bathTimer, toiletTimer, angryTimer, boredTimer, sleepyTimer, moveInterval, starTimer;
     let aliveTime = 0;
     let starCount = 0;
+    let stars = [];
 
     function updateStatus() {
       if (!alive) {
@@ -142,6 +143,10 @@
       const y = Math.floor(Math.random() * maxY);
       petImage.style.left = `${x}px`;
       petImage.style.top = `${y}px`;
+      stars.forEach((star, i) => {
+        star.style.left = `${x + 45}px`;
+        star.style.top = `${y - 25 - i * 20}px`;
+      });
     }
 
     function leavePoop() {
@@ -180,11 +185,10 @@
         const star = document.createElement("div");
         star.textContent = "⭐";
         star.className = "star";
-        const top = parseInt(petImage.style.top) - 25 - (starCount * 20);
-        const left = parseInt(petImage.style.left) + 45;
-        star.style.top = `${top}px`;
-        star.style.left = `${left}px`;
+        star.style.left = petImage.style.left;
+        star.style.top = petImage.style.top;
         gameArea.appendChild(star);
+        stars.push(star);
       }
     }
 
@@ -197,11 +201,11 @@
       clearInterval(sleepyTimer);
       clearInterval(starTimer);
 
-      feedTimer = setInterval(() => { alive = false; updateStatus(); }, 5000);
-      bathTimer = setInterval(() => { dirty = true; updateStatus(); }, 1000);
+      feedTimer = setInterval(() => { alive = false; updateStatus(); }, 10000);
+      bathTimer = setInterval(() => { dirty = true; updateStatus(); }, 5000);
       toiletTimer = setInterval(() => { stinky = true; leavePoop(); updateStatus(); }, 1000);
-      angryTimer = setInterval(() => { angry = true; updateStatus(); }, 5000);
-      boredTimer = setInterval(() => { bored = true; updateStatus(); }, 5000);
+      angryTimer = setInterval(() => { angry = true; updateStatus(); }, 12000);
+      boredTimer = setInterval(() => { bored = true; updateStatus(); }, 15000);
       sleepyTimer = setInterval(() => { sleepy = true; updateStatus(); }, 20000);
       starTimer = setInterval(updateStars, 1000);
     }
@@ -227,6 +231,8 @@
       sleepy = false;
       aliveTime = 0;
       starCount = 0;
+      stars.forEach(s => s.remove());
+      stars = [];
       updateStatus();
       applyFilters();
       startTimers();
