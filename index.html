@@ -174,10 +174,10 @@
 
       feedTimer = setInterval(() => { alive = false; updateStatus(); }, 10000);
       bathTimer = setInterval(() => { dirty = true; updateStatus(); }, 5000);
-      toiletTimer = setInterval(() => { stinky = true; leavePoop(); updateStatus(); }, 4000);
-      angryTimer = setInterval(() => { angry = true; updateStatus(); }, 12000);
-      boredTimer = setInterval(() => { bored = true; updateStatus(); }, 15000);
-      sleepyTimer = setInterval(() => { sleepy = true; updateStatus(); }, 20000);
+      toiletTimer = setInterval(() => { stinky = true; leavePoop(); updateStatus(); }, 1000);
+      angryTimer = setInterval(() => { angry = true; updateStatus(); }, 5000);
+      boredTimer = setInterval(() => { bored = true; updateStatus(); }, 5000);
+      sleepyTimer = setInterval(() => { sleepy = true; updateStatus(); }, 10000);
     }
 
     function startMoving() {
