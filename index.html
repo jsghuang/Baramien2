@@ -87,14 +87,11 @@
   </style>
 </head>
 <body>
-
   <h1>別忘記餵巴拉麵 🐾</h1>
   <div id="gameArea">
     <img id="petImage" class="pet-img" src="https://raw.githubusercontent.com/jsghuang/Baramien2/main/2.png" alt="你的寵物">
   </div>
-
   <div class="status" id="status">狀態：尚未開始</div>
-
   <div class="controls">
     <button class="image-button" onclick="feed()">
       <img src="https://raw.githubusercontent.com/jsghuang/Baramien2/main/buttom%201.png" alt="餵食">
@@ -109,19 +106,16 @@
     <button onclick="revive()">❤️ 復活</button>
     <button onclick="clearPoop()">🧹 清理大便</button>
   </div>
-
   <script>
     const petImage = document.getElementById("petImage");
     const status = document.getElementById("status");
     const gameArea = document.getElementById("gameArea");
-
     let alive = true;
     let dirty = false, stinky = false, angry = false, bored = false, sleepy = false;
     let feedTimer, bathTimer, toiletTimer, angryTimer, boredTimer, sleepyTimer, moveInterval, starTimer;
     let aliveTime = 0;
     let starCount = 0;
     let stars = [];
-
     function updateStatus() {
       if (!alive) {
         status.textContent = "狀態：死亡 🪦";
@@ -135,7 +129,6 @@
       if (bored) list.push("<span style='color:orange;'>無聊的 🧸</span>");
       if (sleepy) list.push("<span style='color:blue;'>睏睏的 😴</span>");
       status.innerHTML = list.length ? "狀態：" + list.join("，") : "狀態：<span style='color:darkgreen;'>快樂中 🐶</span>";
-
       petImage.className = "pet-img" +
         (dirty ? " dirty" : "") +
         (stinky ? " stinky" : "") +
@@ -143,7 +136,6 @@
         (bored ? " bored" : "") +
         (sleepy ? " sleepy" : "");
     }
-
     function randomMove() {
       const maxX = gameArea.clientWidth - petImage.clientWidth;
       const maxY = gameArea.clientHeight - petImage.clientHeight;
@@ -156,7 +148,6 @@
         star.style.top = `${y - 25 - i * 20}px`;
       });
     }
-
     function leavePoop() {
       const poop = document.createElement("div");
       poop.textContent = "💩";
@@ -165,99 +156,67 @@
       poop.style.top = petImage.style.top;
       gameArea.appendChild(poop);
     }
-
     function clearPoop() {
-      const poops = document.querySelectorAll(".poop");
-      poops.forEach(p => p.remove());
+      document.querySelectorAll(".poop").forEach(p => p.remove());
     }
-
     function createNoodle() {
       const noodle = document.createElement("div");
       noodle.textContent = "🍜";
       noodle.className = "noodle";
-      const petRect = petImage.getBoundingClientRect();
-      const areaRect = gameArea.getBoundingClientRect();
-      const x = petRect.left - areaRect.left + petImage.offsetWidth / 2 - 18;
-      const y = petRect.top - areaRect.top - 10;
-      noodle.style.left = `${x}px`;
-      noodle.style.top = `${y}px`;
+      const rect = petImage.getBoundingClientRect();
+      const area = gameArea.getBoundingClientRect();
+      noodle.style.left = `${rect.left - area.left + 45}px`;
+      noodle.style.top = `${rect.top - area.top - 10}px`;
       gameArea.appendChild(noodle);
       setTimeout(() => noodle.remove(), 1000);
     }
-
     function updateStars() {
-  if (!alive) return;
-  aliveTime++;
-  if (aliveTime % 10 === 0) {
-    starCount++;
-    const star = document.createElement("div");
-    star.textContent = "⭐";
-    star.className = "star";
-    const x = parseInt(petImage.style.left) || 0;
-    const y = parseInt(petImage.style.top) || 0;
-    star.style.left = `${x + 45}px`;
-    star.style.top = `${y - 25 - (starCount - 1) * 20}px`;
-    gameArea.appendChild(star);
-    stars.push(star);
-  }
-}px`;
-    star.style.top = `${y - 25 - (starCount - 1) * 20}px`;
-    gameArea.appendChild(star);
-    stars.push(star);
-  }
-}
+      if (!alive) return;
+      aliveTime++;
+      if (aliveTime % 10 === 0) {
+        const star = document.createElement("div");
+        star.textContent = "⭐";
+        star.className = "star";
+        const x = parseInt(petImage.style.left) || 0;
+        const y = parseInt(petImage.style.top) || 0;
+        star.style.left = `${x + 45}px`;
+        star.style.top = `${y - 25 - starCount * 20}px`;
+        gameArea.appendChild(star);
+        stars.push(star);
+        starCount++;
+      }
     }
-
     function startTimers() {
-      clearInterval(feedTimer);
-      clearInterval(bathTimer);
-      clearInterval(toiletTimer);
-      clearInterval(angryTimer);
-      clearInterval(boredTimer);
-      clearInterval(sleepyTimer);
-      clearInterval(starTimer);
-
+      [feedTimer, bathTimer, toiletTimer, angryTimer, boredTimer, sleepyTimer, starTimer].forEach(clearInterval);
       feedTimer = setInterval(() => { alive = false; updateStatus(); }, 10000);
       bathTimer = setInterval(() => { dirty = true; updateStatus(); }, 5000);
       toiletTimer = setInterval(() => { stinky = true; leavePoop(); updateStatus(); }, 1000);
       angryTimer = setInterval(() => { angry = true; updateStatus(); }, 12000);
       boredTimer = setInterval(() => { bored = true; updateStatus(); }, 15000);
       sleepyTimer = setInterval(() => { sleepy = true; updateStatus(); }, 20000);
-      starTimer = setInterval(updateStars, 1000); // still check every second
+      starTimer = setInterval(updateStars, 1000);
     }
-
     function startMoving() {
       clearInterval(moveInterval);
       moveInterval = setInterval(() => { if (alive) randomMove(); }, 500);
     }
-
     function feed() { if (!alive) return; startTimers(); updateStatus(); createNoodle(); }
     function wash() { if (!alive) return; dirty = false; updateStatus(); }
     function toilet() { if (!alive) return; stinky = false; updateStatus(); }
     function pet() { if (!alive) return; angry = false; updateStatus(); }
     function play() { if (!alive) return; bored = false; updateStatus(); }
     function sleep() { if (!alive) return; sleepy = false; updateStatus(); }
-
     function revive() {
       alive = true;
-      dirty = false;
-      stinky = false;
-      angry = false;
-      bored = false;
-      sleepy = false;
-      aliveTime = 0;
-      starCount = 0;
+      dirty = stinky = angry = bored = sleepy = false;
+      aliveTime = starCount = 0;
       stars.forEach(s => s.remove());
       stars = [];
       updateStatus();
       startTimers();
       startMoving();
     }
-
-    window.onload = () => {
-  revive();
-  startMoving();
-};
+    window.onload = revive;
   </script>
 </body>
 </html>
