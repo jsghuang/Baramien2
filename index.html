@@ -200,6 +200,11 @@
     gameArea.appendChild(star);
     stars.push(star);
   }
+}px`;
+    star.style.top = `${y - 25 - (starCount - 1) * 20}px`;
+    gameArea.appendChild(star);
+    stars.push(star);
+  }
 }
     }
 
@@ -249,7 +254,10 @@
       startMoving();
     }
 
-    window.onload = revive;
+    window.onload = () => {
+  revive();
+  startMoving();
+};
   </script>
 </body>
 </html>
