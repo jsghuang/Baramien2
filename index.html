@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>別忘記餵巴拉麵</title>
-  <style>
+    <style>
     body {
       font-family: sans-serif;
       background: #fefcea;
@@ -52,10 +52,29 @@
       text-align: center;
       margin: 20px 0;
     }
+
     .controls button {
       margin: 6px;
       padding: 10px 20px;
       font-size: 16px;
+    }
+
+    /* ✅ 圖片按鈕 hover 動畫 */
+    .image-button {
+      border: none;
+      background: none;
+      padding: 0;
+      margin: 6px;
+      cursor: pointer;
+    }
+
+    .image-button img {
+      height: 60px;
+      transition: transform 0.2s ease;
+    }
+
+    .image-button:hover img {
+      transform: scale(1.1);
     }
   </style>
 </head>
@@ -69,10 +88,12 @@
   <div class="status" id="status">狀態：尚未開始</div>
 
   <div class="controls">
-  <button onclick="feed()" style="border:none; background:none;">
-    <img src="https://raw.githubusercontent.com/jsghuang/Baramien2/main/buttom%201.png" alt="餵食" style="height:60px;">
+  <button class="image-button" onclick="feed()">
+    <img src="https://raw.githubusercontent.com/jsghuang/Baramien2/main/buttom%201.png" alt="餵食">
   </button>
-  <button onclick="wash()">🛁 洗澡</button>
+  <button class="image-button" onclick="wash()">
+    <img src="https://raw.githubusercontent.com/jsghuang/Baramien2/main/buttom%202.png" alt="洗澡">
+  </button>
   <button onclick="toilet()">🚽 上廁所</button>
   <button onclick="pet()">🤲 摸摸</button>
   <button onclick="play()">🧸 玩耍</button>
