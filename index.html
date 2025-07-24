@@ -41,6 +41,11 @@
       pointer-events: none;
       z-index: 999;
     }
+    .star {
+      position: absolute;
+      font-size: 28px;
+      z-index: 998;
+    }
     @keyframes dropNoodle {
       0% { transform: translateY(0); opacity: 1; }
       100% { transform: translateY(80px); opacity: 0; }
@@ -107,20 +112,23 @@
 
     let alive = true;
     let dirty = false, stinky = false, angry = false, bored = false, sleepy = false;
-    let feedTimer, bathTimer, toiletTimer, angryTimer, boredTimer, sleepyTimer, moveInterval;
+    let feedTimer, bathTimer, toiletTimer, angryTimer, boredTimer, sleepyTimer, moveInterval, starTimer;
+    let aliveTime = 0;
+    let starCount = 0;
 
     function updateStatus() {
       if (!alive) {
         status.textContent = "狀態：死亡 🪦";
+        status.style.color = "black";
         return;
       }
       const list = [];
-      if (dirty) list.push("髒髒的 🛁");
-      if (stinky) list.push("臭臭的 💩");
-      if (angry) list.push("生氣的 😠");
-      if (bored) list.push("無聊的 🧸");
-      if (sleepy) list.push("睏睏的 😴");
-      status.textContent = list.length ? "狀態：" + list.join("，") : "狀態：快樂中 🐶";
+      if (dirty) list.push("<span style='color:green;'>髒髒的 🛁</span>");
+      if (stinky) list.push("<span style='color:brown;'>臭臭的 💩</span>");
+      if (angry) list.push("<span style='color:red;'>生氣的 😠</span>");
+      if (bored) list.push("<span style='color:orange;'>無聊的 🧸</span>");
+      if (sleepy) list.push("<span style='color:blue;'>睏睏的 😴</span>");
+      status.innerHTML = list.length ? "狀態：" + list.join("，") : "狀態：<span style='color:darkgreen;'>快樂中 🐶</span>";
     }
 
     function applyFilters() {
@@ -164,6 +172,22 @@
       setTimeout(() => noodle.remove(), 1000);
     }
 
+    function updateStars() {
+      if (!alive) return;
+      aliveTime++;
+      if (aliveTime % 10 === 0) {
+        starCount++;
+        const star = document.createElement("div");
+        star.textContent = "⭐";
+        star.className = "star";
+        const top = parseInt(petImage.style.top) - 25 - (starCount * 20);
+        const left = parseInt(petImage.style.left) + 45;
+        star.style.top = `${top}px`;
+        star.style.left = `${left}px`;
+        gameArea.appendChild(star);
+      }
+    }
+
     function startTimers() {
       clearInterval(feedTimer);
       clearInterval(bathTimer);
@@ -171,6 +195,7 @@
       clearInterval(angryTimer);
       clearInterval(boredTimer);
       clearInterval(sleepyTimer);
+      clearInterval(starTimer);
 
       feedTimer = setInterval(() => { alive = false; updateStatus(); }, 10000);
       bathTimer = setInterval(() => { dirty = true; updateStatus(); }, 5000);
@@ -178,6 +203,7 @@
       angryTimer = setInterval(() => { angry = true; updateStatus(); }, 12000);
       boredTimer = setInterval(() => { bored = true; updateStatus(); }, 15000);
       sleepyTimer = setInterval(() => { sleepy = true; updateStatus(); }, 20000);
+      starTimer = setInterval(updateStars, 1000);
     }
 
     function startMoving() {
@@ -199,6 +225,8 @@
       angry = false;
       bored = false;
       sleepy = false;
+      aliveTime = 0;
+      starCount = 0;
       updateStatus();
       applyFilters();
       startTimers();
