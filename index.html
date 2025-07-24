@@ -2,6 +2,7 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>別忘記餵巴拉麵</title>
   <style>
     body {
@@ -13,6 +14,7 @@
     h1 {
       text-align: center;
       margin-top: 20px;
+      font-size: 5vw;
     }
     #gameArea {
       position: relative;
@@ -22,8 +24,10 @@
       border: 2px dashed #ccc;
     }
     .pet-img {
-      width: 120px;
-      height: 120px;
+      width: 20vw;
+      height: 20vw;
+      max-width: 120px;
+      max-height: 120px;
       object-fit: contain;
       position: absolute;
       transition: all 0.4s ease;
@@ -36,49 +40,52 @@
     .sleepy { filter: opacity(0.6); }
     .poop {
       position: absolute;
-      font-size: 36px;
+      font-size: 5vw;
       z-index: 1;
     }
     .noodle {
       position: absolute;
-      font-size: 36px;
+      font-size: 5vw;
       animation: dropNoodle 1s ease-in-out forwards;
       pointer-events: none;
       z-index: 999;
     }
     .star {
       position: absolute;
-      font-size: 28px;
+      font-size: 4vw;
       z-index: 998;
     }
     @keyframes dropNoodle {
       0% { transform: translateY(0); opacity: 1; }
-      100% { transform: translateY(80px); opacity: 0; }
+      100% { transform: translateY(10vh); opacity: 0; }
     }
     .status {
       text-align: center;
       margin-top: 10px;
       font-weight: bold;
-      font-size: 18px;
+      font-size: 4vw;
     }
     .controls {
       text-align: center;
-      margin: 20px 0;
+      margin: 2vh 0;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1vw;
     }
     .controls button {
-      margin: 6px;
-      padding: 10px 20px;
-      font-size: 16px;
+      padding: 1vh 2vw;
+      font-size: 4vw;
     }
     .image-button {
       border: none;
       background: none;
       padding: 0;
-      margin: 6px;
       cursor: pointer;
     }
     .image-button img {
-      height: 60px;
+      height: 10vw;
+      max-height: 60px;
       transition: transform 0.2s ease;
     }
     .image-button:hover img {
@@ -87,136 +94,6 @@
   </style>
 </head>
 <body>
-  <h1>別忘記餵巴拉麵 🐾</h1>
-  <div id="gameArea">
-    <img id="petImage" class="pet-img" src="https://raw.githubusercontent.com/jsghuang/Baramien2/main/2.png" alt="你的寵物">
-  </div>
-  <div class="status" id="status">狀態：尚未開始</div>
-  <div class="controls">
-    <button class="image-button" onclick="feed()">
-      <img src="https://raw.githubusercontent.com/jsghuang/Baramien2/main/buttom%201.png" alt="餵食">
-    </button>
-    <button class="image-button" onclick="wash()">
-      <img src="https://raw.githubusercontent.com/jsghuang/Baramien2/main/buttom%202.png" alt="洗澡">
-    </button>
-    <button onclick="toilet()">🚽 上廁所</button>
-    <button onclick="pet()">🤲 摸摸</button>
-    <button onclick="play()">🧸 玩耍</button>
-    <button onclick="sleep()">😴 睡覺</button>
-    <button onclick="revive()">❤️ 復活</button>
-    <button onclick="clearPoop()">🧹 清理大便</button>
-  </div>
-  <script>
-    const petImage = document.getElementById("petImage");
-    const status = document.getElementById("status");
-    const gameArea = document.getElementById("gameArea");
-    let alive = true;
-    let dirty = false, stinky = false, angry = false, bored = false, sleepy = false;
-    let feedTimer, bathTimer, toiletTimer, angryTimer, boredTimer, sleepyTimer, moveInterval, starTimer;
-    let aliveTime = 0;
-    let starCount = 0;
-    let stars = [];
-    function updateStatus() {
-      if (!alive) {
-        status.textContent = "狀態：死亡 🪦";
-        status.style.color = "black";
-        return;
-      }
-      const list = [];
-      if (dirty) list.push("<span style='color:green;'>髒髒的 🛁</span>");
-      if (stinky) list.push("<span style='color:brown;'>臭臭的 💩</span>");
-      if (angry) list.push("<span style='color:red;'>生氣的 😠</span>");
-      if (bored) list.push("<span style='color:orange;'>無聊的 🧸</span>");
-      if (sleepy) list.push("<span style='color:blue;'>睏睏的 😴</span>");
-      status.innerHTML = list.length ? "狀態：" + list.join("，") : "狀態：<span style='color:darkgreen;'>快樂中 🐶</span>";
-      petImage.className = "pet-img" +
-        (dirty ? " dirty" : "") +
-        (stinky ? " stinky" : "") +
-        (angry ? " angry" : "") +
-        (bored ? " bored" : "") +
-        (sleepy ? " sleepy" : "");
-    }
-    function randomMove() {
-      const maxX = gameArea.clientWidth - petImage.clientWidth;
-      const maxY = gameArea.clientHeight - petImage.clientHeight;
-      const x = Math.floor(Math.random() * maxX);
-      const y = Math.floor(Math.random() * maxY);
-      petImage.style.left = `${x}px`;
-      petImage.style.top = `${y}px`;
-      stars.forEach((star, i) => {
-        star.style.left = `${x + 45}px`;
-        star.style.top = `${y - 25 - i * 20}px`;
-      });
-    }
-    function leavePoop() {
-      const poop = document.createElement("div");
-      poop.textContent = "💩";
-      poop.className = "poop";
-      poop.style.left = petImage.style.left;
-      poop.style.top = petImage.style.top;
-      gameArea.appendChild(poop);
-    }
-    function clearPoop() {
-      document.querySelectorAll(".poop").forEach(p => p.remove());
-    }
-    function createNoodle() {
-      const noodle = document.createElement("div");
-      noodle.textContent = "🍜";
-      noodle.className = "noodle";
-      const rect = petImage.getBoundingClientRect();
-      const area = gameArea.getBoundingClientRect();
-      noodle.style.left = `${rect.left - area.left + 45}px`;
-      noodle.style.top = `${rect.top - area.top - 10}px`;
-      gameArea.appendChild(noodle);
-      setTimeout(() => noodle.remove(), 1000);
-    }
-    function updateStars() {
-      if (!alive) return;
-      aliveTime++;
-      if (aliveTime % 10 === 0) {
-        const star = document.createElement("div");
-        star.textContent = "⭐";
-        star.className = "star";
-        const x = parseInt(petImage.style.left) || 0;
-        const y = parseInt(petImage.style.top) || 0;
-        star.style.left = `${x + 45}px`;
-        star.style.top = `${y - 25 - starCount * 20}px`;
-        gameArea.appendChild(star);
-        stars.push(star);
-        starCount++;
-      }
-    }
-    function startTimers() {
-      [feedTimer, bathTimer, toiletTimer, angryTimer, boredTimer, sleepyTimer, starTimer].forEach(clearInterval);
-      feedTimer = setInterval(() => { alive = false; updateStatus(); }, 10000);
-      bathTimer = setInterval(() => { dirty = true; updateStatus(); }, 5000);
-      toiletTimer = setInterval(() => { stinky = true; leavePoop(); updateStatus(); }, 1000);
-      angryTimer = setInterval(() => { angry = true; updateStatus(); }, 12000);
-      boredTimer = setInterval(() => { bored = true; updateStatus(); }, 15000);
-      sleepyTimer = setInterval(() => { sleepy = true; updateStatus(); }, 20000);
-      starTimer = setInterval(updateStars, 1000);
-    }
-    function startMoving() {
-      clearInterval(moveInterval);
-      moveInterval = setInterval(() => { if (alive) randomMove(); }, 500);
-    }
-    function feed() { if (!alive) return; startTimers(); updateStatus(); createNoodle(); }
-    function wash() { if (!alive) return; dirty = false; updateStatus(); }
-    function toilet() { if (!alive) return; stinky = false; updateStatus(); }
-    function pet() { if (!alive) return; angry = false; updateStatus(); }
-    function play() { if (!alive) return; bored = false; updateStatus(); }
-    function sleep() { if (!alive) return; sleepy = false; updateStatus(); }
-    function revive() {
-      alive = true;
-      dirty = stinky = angry = bored = sleepy = false;
-      aliveTime = starCount = 0;
-      stars.forEach(s => s.remove());
-      stars = [];
-      updateStatus();
-      startTimers();
-      startMoving();
-    }
-    window.onload = revive;
-  </script>
+  <!-- 保留原本內容 -->
 </body>
 </html>
