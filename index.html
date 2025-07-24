@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>別忘記餵巴拉麵</title>
-    <style>
+  <style>
     body {
       font-family: sans-serif;
       background: #fefcea;
@@ -34,32 +34,32 @@
       font-size: 36px;
       z-index: 1;
     }
-    .dead { filter: grayscale(100%); }
-    .dirty { filter: sepia(90%); }
-    .stinky { filter: hue-rotate(90deg); }
-    .angry { filter: contrast(150%) brightness(85%); }
-    .bored { filter: blur(1px); }
-    .sleepy { filter: brightness(80%) saturate(70%); }
-
+    .noodle {
+      position: absolute;
+      font-size: 36px;
+      animation: dropNoodle 1s ease-in-out forwards;
+      pointer-events: none;
+      z-index: 999;
+    }
+    @keyframes dropNoodle {
+      0% { transform: translateY(0); opacity: 1; }
+      100% { transform: translateY(80px); opacity: 0; }
+    }
     .status {
       text-align: center;
       margin-top: 10px;
       font-weight: bold;
       font-size: 18px;
     }
-
     .controls {
       text-align: center;
       margin: 20px 0;
     }
-
     .controls button {
       margin: 6px;
       padding: 10px 20px;
       font-size: 16px;
     }
-
-    /* ✅ 圖片按鈕 hover 動畫 */
     .image-button {
       border: none;
       background: none;
@@ -67,12 +67,10 @@
       margin: 6px;
       cursor: pointer;
     }
-
     .image-button img {
       height: 60px;
       transition: transform 0.2s ease;
     }
-
     .image-button:hover img {
       transform: scale(1.1);
     }
@@ -88,17 +86,17 @@
   <div class="status" id="status">狀態：尚未開始</div>
 
   <div class="controls">
-  <button class="image-button" onclick="feed()">
-    <img src="https://raw.githubusercontent.com/jsghuang/Baramien2/main/buttom%201.png" alt="餵食">
-  </button>
-  <button class="image-button" onclick="wash()">
-    <img src="https://raw.githubusercontent.com/jsghuang/Baramien2/main/buttom%202.png" alt="洗澡">
-  </button>
-  <button onclick="toilet()">🚽 上廁所</button>
-  <button onclick="pet()">🤲 摸摸</button>
-  <button onclick="play()">🧸 玩耍</button>
-  <button onclick="sleep()">😴 睡覺</button>
-  <button onclick="revive()">❤️ 復活</button>
+    <button class="image-button" onclick="feed()">
+      <img src="https://raw.githubusercontent.com/jsghuang/Baramien2/main/buttom%201.png" alt="餵食">
+    </button>
+    <button class="image-button" onclick="wash()">
+      <img src="https://raw.githubusercontent.com/jsghuang/Baramien2/main/buttom%202.png" alt="洗澡">
+    </button>
+    <button onclick="toilet()">🚽 上廁所</button>
+    <button onclick="pet()">🤲 摸摸</button>
+    <button onclick="play()">🧸 玩耍</button>
+    <button onclick="sleep()">😴 睡覺</button>
+    <button onclick="revive()">❤️ 復活</button>
   </div>
 
   <script>
@@ -108,37 +106,24 @@
 
     let alive = true;
     let dirty = false, stinky = false, angry = false, bored = false, sleepy = false;
-
-    let feedTimer, bathTimer, toiletTimer, angryTimer, boredTimer, sleepyTimer;
-    let moveInterval;
+    let feedTimer, bathTimer, toiletTimer, angryTimer, boredTimer, sleepyTimer, moveInterval;
 
     function updateStatus() {
       if (!alive) {
         status.textContent = "狀態：死亡 🪦";
         return;
       }
-
       const list = [];
       if (dirty) list.push("髒髒的 🛁");
       if (stinky) list.push("臭臭的 💩");
       if (angry) list.push("生氣的 😠");
       if (bored) list.push("無聊的 🧸");
       if (sleepy) list.push("睏睏的 😴");
-
       status.textContent = list.length ? "狀態：" + list.join("，") : "狀態：快樂中 🐶";
     }
 
     function applyFilters() {
       petImage.className = "pet-img";
-      if (!alive) {
-        petImage.classList.add("dead");
-        return;
-      }
-      if (dirty) petImage.classList.add("dirty");
-      if (stinky) petImage.classList.add("stinky");
-      if (angry) petImage.classList.add("angry");
-      if (bored) petImage.classList.add("bored");
-      if (sleepy) petImage.classList.add("sleepy");
     }
 
     function randomMove() {
@@ -159,6 +144,20 @@
       gameArea.appendChild(poop);
     }
 
+    function createNoodle() {
+      const noodle = document.createElement("div");
+      noodle.textContent = "🍜";
+      noodle.className = "noodle";
+      const petRect = petImage.getBoundingClientRect();
+      const areaRect = gameArea.getBoundingClientRect();
+      const x = petRect.left - areaRect.left + petImage.offsetWidth / 2 - 18;
+      const y = petRect.top - areaRect.top - 10;
+      noodle.style.left = `${x}px`;
+      noodle.style.top = `${y}px`;
+      gameArea.appendChild(noodle);
+      setTimeout(() => noodle.remove(), 1000);
+    }
+
     function startTimers() {
       clearInterval(feedTimer);
       clearInterval(bathTimer);
@@ -167,69 +166,25 @@
       clearInterval(boredTimer);
       clearInterval(sleepyTimer);
 
-      feedTimer = setInterval(() => {
-        if (alive) {
-          alive = false;
-          updateStatus();
-          applyFilters();
-        }
-      }, 10000);
-
-      bathTimer = setInterval(() => {
-        if (alive) {
-          dirty = true;
-          updateStatus();
-          applyFilters();
-        }
-      }, 5000);
-
-      toiletTimer = setInterval(() => {
-        if (alive) {
-          stinky = true;
-          leavePoop();
-          updateStatus();
-          applyFilters();
-        }
-      }, 1000);
-
-      angryTimer = setInterval(() => {
-        if (alive) {
-          angry = true;
-          updateStatus();
-          applyFilters();
-        }
-      }, 4000);
-
-      boredTimer = setInterval(() => {
-        if (alive) {
-          bored = true;
-          updateStatus();
-          applyFilters();
-        }
-      }, 4000);
-
-      sleepyTimer = setInterval(() => {
-        if (alive) {
-          sleepy = true;
-          updateStatus();
-          applyFilters();
-        }
-      }, 20000);
+      feedTimer = setInterval(() => { alive = false; updateStatus(); }, 10000);
+      bathTimer = setInterval(() => { dirty = true; updateStatus(); }, 5000);
+      toiletTimer = setInterval(() => { stinky = true; leavePoop(); updateStatus(); }, 4000);
+      angryTimer = setInterval(() => { angry = true; updateStatus(); }, 12000);
+      boredTimer = setInterval(() => { bored = true; updateStatus(); }, 15000);
+      sleepyTimer = setInterval(() => { sleepy = true; updateStatus(); }, 20000);
     }
 
     function startMoving() {
       clearInterval(moveInterval);
-      moveInterval = setInterval(() => {
-        if (alive) randomMove();
-      }, 500);
+      moveInterval = setInterval(() => { if (alive) randomMove(); }, 500);
     }
 
-    function feed() { if (!alive) return; startTimers(); updateStatus(); }
-    function wash() { if (!alive) return; dirty = false; updateStatus(); applyFilters(); }
-    function toilet() { if (!alive) return; stinky = false; updateStatus(); applyFilters(); }
-    function pet() { if (!alive) return; angry = false; updateStatus(); applyFilters(); }
-    function play() { if (!alive) return; bored = false; updateStatus(); applyFilters(); }
-    function sleep() { if (!alive) return; sleepy = false; updateStatus(); applyFilters(); }
+    function feed() { if (!alive) return; startTimers(); updateStatus(); createNoodle(); }
+    function wash() { if (!alive) return; dirty = false; updateStatus(); }
+    function toilet() { if (!alive) return; stinky = false; updateStatus(); }
+    function pet() { if (!alive) return; angry = false; updateStatus(); }
+    function play() { if (!alive) return; bored = false; updateStatus(); }
+    function sleep() { if (!alive) return; sleepy = false; updateStatus(); }
 
     function revive() {
       alive = true;
