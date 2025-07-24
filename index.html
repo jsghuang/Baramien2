@@ -97,6 +97,7 @@
     <button onclick="play()">🧸 玩耍</button>
     <button onclick="sleep()">😴 睡覺</button>
     <button onclick="revive()">❤️ 復活</button>
+    <button onclick="clearPoop()">🧹 清理大便</button>
   </div>
 
   <script>
@@ -142,6 +143,11 @@
       poop.style.left = petImage.style.left;
       poop.style.top = petImage.style.top;
       gameArea.appendChild(poop);
+    }
+
+    function clearPoop() {
+      const poops = document.querySelectorAll(".poop");
+      poops.forEach(p => p.remove());
     }
 
     function createNoodle() {
