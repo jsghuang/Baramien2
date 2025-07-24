@@ -29,6 +29,11 @@
       transition: all 0.4s ease;
       z-index: 10;
     }
+    .dirty { filter: hue-rotate(90deg); }
+    .stinky { filter: brightness(0.7) saturate(0.6); }
+    .angry { filter: contrast(1.4) sepia(0.7); }
+    .bored { filter: grayscale(1); }
+    .sleepy { filter: opacity(0.6); }
     .poop {
       position: absolute;
       font-size: 36px;
@@ -130,10 +135,13 @@
       if (bored) list.push("<span style='color:orange;'>無聊的 🧸</span>");
       if (sleepy) list.push("<span style='color:blue;'>睏睏的 😴</span>");
       status.innerHTML = list.length ? "狀態：" + list.join("，") : "狀態：<span style='color:darkgreen;'>快樂中 🐶</span>";
-    }
 
-    function applyFilters() {
-      petImage.className = "pet-img";
+      petImage.className = "pet-img" +
+        (dirty ? " dirty" : "") +
+        (stinky ? " stinky" : "") +
+        (angry ? " angry" : "") +
+        (bored ? " bored" : "") +
+        (sleepy ? " sleepy" : "");
     }
 
     function randomMove() {
@@ -178,18 +186,21 @@
     }
 
     function updateStars() {
-      if (!alive) return;
-      aliveTime++;
-      if (aliveTime % 10 === 0) {
-        starCount++;
-        const star = document.createElement("div");
-        star.textContent = "⭐";
-        star.className = "star";
-        star.style.left = petImage.style.left;
-        star.style.top = petImage.style.top;
-        gameArea.appendChild(star);
-        stars.push(star);
-      }
+  if (!alive) return;
+  aliveTime++;
+  if (aliveTime % 10 === 0) {
+    starCount++;
+    const star = document.createElement("div");
+    star.textContent = "⭐";
+    star.className = "star";
+    const x = parseInt(petImage.style.left) || 0;
+    const y = parseInt(petImage.style.top) || 0;
+    star.style.left = `${x + 45}px`;
+    star.style.top = `${y - 25 - (starCount - 1) * 20}px`;
+    gameArea.appendChild(star);
+    stars.push(star);
+  }
+}
     }
 
     function startTimers() {
@@ -207,7 +218,7 @@
       angryTimer = setInterval(() => { angry = true; updateStatus(); }, 12000);
       boredTimer = setInterval(() => { bored = true; updateStatus(); }, 15000);
       sleepyTimer = setInterval(() => { sleepy = true; updateStatus(); }, 20000);
-      starTimer = setInterval(updateStars, 1000);
+      starTimer = setInterval(updateStars, 1000); // still check every second
     }
 
     function startMoving() {
@@ -234,7 +245,6 @@
       stars.forEach(s => s.remove());
       stars = [];
       updateStatus();
-      applyFilters();
       startTimers();
       startMoving();
     }
